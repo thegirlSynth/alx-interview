@@ -6,31 +6,42 @@ Minimum Operations - Check README.md for detailed explanation of the problem.
 
 def minOperations(n):
     """
-    This solution uses a recursive call to the function minOperations.
+    This is the second version of the solution.
+    As the first one was not very efficient in handling large numbers,
+    there was a need to refactor the function.
 
-    Since performing this operation:
-      when n = 2, minimum number of operations(min_num) = 2;
-      when n = 3, min_num = 3;
-      when n = 5, min_num = 5;
-      when n = 7, min_num = 7;
+    This approach uses a function find_factors to find all the factors of n,
+    and then uses is_prime to find the ones that are prime numbers.
 
-    If you can break down a number into its factors, you can add up the min_num
-    of each factor and their total will equal the minimum number required for
-    the number to solve this problem successfully.
+    In other words, the prime factors of n are first computed, and a sum
+    of those factors are returned.
     """
+    factors_list = find_factors(n)
 
-    # Base Case
+    prime_factors = []
+    for item in factors_list:
+        if is_prime(item):
+            prime_factors.append(item)
+
+    return sum(prime_factors)
+
+
+def find_factors(n):
+    factors = []  # Initialize an empty list to store the factors
+
+    # Loop through numbers from 1 to the square root of n
+    for i in range(1, int(n**0.5) + 1):
+        if n % i == 0:
+            factors.append(i)  # i is a factor
+            factors.append(n // i)  # n // i is also a factor
+
+    return factors
+
+
+def is_prime(n):
     if n <= 1:
-        return 0
-
-    min_num = 0
-    factors = [2, 3, 5, 7, 11, 13, 17, 19]
-    for num in factors:
-        if n % num == 0:
-            n = n // num
-            min_num = num + minOperations(n)
-            break
-
-    if min_num == 0:
-        min_num = n
-    return min_num
+        return False
+    for i in range(2, int(n**0.5) + 1):
+        if n % i == 0:
+            return False
+    return True
