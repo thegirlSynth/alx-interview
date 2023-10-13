@@ -24,11 +24,13 @@ def minOperations(n):
         return 0
 
     min_num = 0
-    factors = [2, 3, 5, 7]
+    factors = [2, 3, 5, 7, 11, 13, 17, 19]
     for num in factors:
         if n % num == 0:
             n = n // num
             min_num = num + minOperations(n)
             break
 
+    if min_num == 0:
+        min_num = n
     return min_num
