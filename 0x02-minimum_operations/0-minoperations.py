@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 """
 Minimum Operations - Check README.md for detailed explanation of the problem.
 """
