@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 """
 Minimum Operations - Check README.md for detailed explanation of the problem.
 """
@@ -28,7 +28,6 @@ def minOperations(n):
     for num in factors:
         if n % num == 0:
             n = n // num
-            print(n)
             min_num = num + minOperations(n)
             break
 
