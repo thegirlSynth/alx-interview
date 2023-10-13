@@ -14,6 +14,9 @@ def minOperations(n):
     and then return a sum of those factors.
     """
 
+    if n <= 1:
+        return 0
+
     factors_list = prime_factors(n)
     return sum(factors_list)
 
