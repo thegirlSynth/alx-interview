@@ -3,55 +3,39 @@
 Lockboxes - Check README.md for detailed explanation of the problem.
 """
 
+from collections import deque
+
 
 def canUnlockAll(boxes):
     """
-    This algorithm approches the solution to the problem by
-    making a recursive call to a function that opens a new box
-    every time it is called, with the available keys unlocked from other boxes.
+    In this second version of the solution algorithm, the data structure
+    of choice is the queue. The first version had the disadvantage of
+    getting a maximum recursion depth error for a large number of boxes.
+
+    This approach absolves the need to use a deep recursive function,
+    and since it is  not advisable to mutate a list while iterating over it,
+    the queue became the next perfect data structure of choice.
     """
 
-    all_keys = []
-    used_keys = 1
-
-    all_keys.extend(boxes[0])
+    all_keys = deque([0])
+    used_keys = set()
 
     if len(boxes) > 1:
-        used_keys += get_keys(boxes, all_keys)
+        while all_keys:
+            key = all_keys.popleft()
 
-    if used_keys == len(boxes):
+            if key < len(boxes):
+                used_keys.add(key)
+                new = set(
+                    [
+                        num
+                        for num in boxes[key]
+                        if num not in used_keys and num not in all_keys
+                    ]
+                )
+                all_keys.extend(new)
+
+    if len(used_keys) == len(boxes):
         return True
     else:
         return False
-
-
-def get_keys(boxes, all_keys, index=0):
-    """
-    This function tries to open boxes according to the index
-    of the key in the all_keys list.
-    The index increase, every time the function is called.
-    New keys are added to all_keys if the box can be opened,
-    and the number of used keys is set to 1 per function call.
-
-    If the key did not open any box, however, used_keys = 0,
-    since no keys were used.
-
-    The recursion ends when all the boxes that can be opened
-    with the available keys are opened,
-    and we have now approached the end of all_keys.
-    """
-    # base condition
-    if index == len(all_keys):
-        return 0
-
-    used_keys = 0
-    key = all_keys[index]
-
-    if key < len(boxes):
-        new = [key for key in boxes[key] if key not in all_keys and key != 0]
-        all_keys.extend(new)
-        used_keys = 1
-
-    index += 1
-    used_keys += get_keys(boxes, all_keys, index)
-    return used_keys
