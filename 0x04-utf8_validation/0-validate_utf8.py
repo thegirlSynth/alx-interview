@@ -23,14 +23,15 @@ def validUTF8(data):
         if len(first_byte) < 8:
             first_byte = "0" + first_byte
 
-        if first_byte.startswith(encoding):
-            while indx < len(data):
-                next_byte = bin(data[indx])[2:]
-                if not next_byte.startswith("10"):
-                    print(next_byte)  # output test
-                    return False
-                indx += 1
+        for num, encoding_prefix in enumerate(encoding):
+            if first_byte.startswith(encoding_prefix):
+                while indx < len(data) and num:
+                    next_byte = bin(data[indx])[2:]
+                    if not next_byte.startswith("10"):
+                        return False
+                    indx += 1
+                    num -= 1
 
-            return True
+                return True
 
     return False
