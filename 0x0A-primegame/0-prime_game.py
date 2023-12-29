@@ -4,17 +4,35 @@ Solves the problem described in the README
 """
 
 
+def sieve_of_eratosthenes(n):
+    """
+    Determines if number is prime
+    """
+    primes = [True] * (n + 1)
+    primes[0] = primes[1] = False
+
+    p = 2
+    while p * p <= n:
+        if primes[p]:
+            for i in range(p * p, n + 1, p):
+                primes[i] = False
+        p += 1
+
+    return [i for i in range(2, n + 1) if primes[i]]
+
+
 def isWinner(x, nums):
     """
-    Prime Game
+    Decides who is the winner of each round
     """
-
     maria = 0
     ben = 0
 
     if x > 0:
+        primes = sieve_of_eratosthenes(max(nums))
+
         for num in nums:
-            winner = find_winner(num)
+            winner = "ben" if num in primes else "maria"
             if winner == "maria":
                 maria += 1
             elif winner == "ben":
@@ -26,30 +44,3 @@ def isWinner(x, nums):
         return "Ben"
 
     return None
-
-
-def is_prime(num):
-    """
-    Determines if number is prime
-    """
-
-    if num < 2:
-        return False
-
-    for n in range(2, int(num**0.5) + 1):
-        if num % n == 0:
-            return False
-
-    return True
-
-
-def find_winner(n):
-    """
-    Decides who is the winner of each round
-    """
-
-    primes = [i for i in range(2, n + 1) if is_prime(i)]
-
-    if len(primes) % 2 == 0:
-        return "ben"
-    return "maria"
