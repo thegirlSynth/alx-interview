@@ -4,43 +4,29 @@ Solves the problem described in the README
 """
 
 
-def sieve_of_eratosthenes(n):
-    """
-    Determines if number is prime
-    """
-    primes = [True] * (n + 1)
-    primes[0] = primes[1] = False
-
-    p = 2
-    while p * p <= n:
-        if primes[p]:
-            for i in range(p * p, n + 1, p):
-                primes[i] = False
-        p += 1
-
-    return [i for i in range(2, n + 1) if primes[i]]
-
-
 def isWinner(x, nums):
     """
     Decides who is the winner of each round
     """
-    maria = 0
-    ben = 0
+    if x < 1 or not nums:
+        return None
+    marias_wins, bens_wins = 0, 0
 
-    if x > 0:
-        primes = sieve_of_eratosthenes(max(nums))
+    # generate primes with a limit of the maximum number in nums
+    n = max(nums)
+    primes = [True for _ in range(1, n + 1, 1)]
+    primes[0] = False
+    for i, is_prime in enumerate(primes, 1):
+        if i == 1 or not is_prime:
+            continue
+        for j in range(i + i, n + 1, i):
+            primes[j - 1] = False
 
-        for num in nums:
-            winner = "ben" if num in primes else "maria"
-            if winner == "maria":
-                maria += 1
-            elif winner == "ben":
-                ben += 1
-
-    if maria > ben:
-        return "Maria"
-    if ben > maria:
-        return "Ben"
-
-    return None
+    # filter the number of primes less than n in nums for each round
+    for _, n in zip(range(x), nums):
+        primes_count = len(list(filter(lambda x: x, primes[0:n])))
+        bens_wins += primes_count % 2 == 0
+        marias_wins += primes_count % 2 == 1
+    if marias_wins == bens_wins:
+        return None
+    return "Maria" if marias_wins > bens_wins else "Ben"
