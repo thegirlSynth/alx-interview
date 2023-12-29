@@ -8,21 +8,15 @@ def makeChange(coins, total):
     """
     Determine the fewest number of coins needed to meet a given amount total.
     """
-    coins.sort(reverse=True)
+    if total <= 0:
+        return 0
 
-    def makeChangeRecursive(coins, total, index):
-        if total == 0:
-            return 0
-        if index == len(coins):
-            return float("inf")
+    INF = float("inf")
+    dp = [0] + [INF] * total
 
-        minCoins = float("inf")
-        for i in range(index, len(coins)):
-            if coins[i] <= total:
-                res = makeChangeRecursive(coins, total - coins[i], i)
-                minCoins = min(minCoins, res + 1)
+    for i in range(1, total + 1):
+        for coin in coins:
+            if coin <= i:
+                dp[i] = min(dp[i], dp[i - coin] + 1)
 
-        return minCoins
-
-    minCoins = makeChangeRecursive(coins, total, 0)
-    return minCoins if minCoins <= total else -1
+    return dp[total] if dp[total] != INF else -1
