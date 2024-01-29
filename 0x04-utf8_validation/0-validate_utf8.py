@@ -4,34 +4,61 @@ UTF-8 Validation
 """
 
 
-def validUTF8(data):
+from typing import List, Optional
+
+
+def validUTF8(data: List[int], verbose: Optional[bool] = False) -> bool:
     """
-    Determines if a given data set represents a valid UTF-8 encoding.
-    Return: True if data is a valid UTF-8 encoding, else return is False
-    A character in UTF-8 can be 1 to 4 bytes long
-    The data set can contain multiple characters
-    The data will be represented by a list of integers
-    Each integer represents 1 byte of data,
-    Therefore only the 8 least significant bits of each integer is handled.
+    param data: A list of integers that represent the binary data to
+                be parsed.
+    return: True if data is in a valid UTF-8 format, False otherwise
     """
+    if not isinstance(data, list) or False in [
+        isinstance(x, int) for x in data
+    ]:  # noqa
+        return False
 
-    encoding = ("0", "110", "1110", "11110")
-    indx = 1
+    # Validate data byte-by-byte and return False if an invalid byte is found
+    continuation_bytes = 0
+    previous_byte = 0
+    for num in data:
+        # Convert integer to byte/eight least significant bits (256 == 2^8)
+        num %= 256
 
-    if data:
-        first_byte = bin(data[0])[2:]
-        if len(first_byte) < 8:
-            first_byte = "0" + first_byte
+        # Print verbose output
+        if verbose:
+            left = continuation_bytes
+            print(f"{num}[{left}], " if left else f"{num}, ", end="")
 
-        for num, encoding_prefix in enumerate(encoding):
-            if first_byte.startswith(encoding_prefix):
-                while indx < len(data) and num:
-                    next_byte = bin(data[indx])[2:]
-                    if not next_byte.startswith("10"):
-                        return False
-                    indx += 1
-                    num -= 1
+        if num >= 248:
+            # Invalid byte -> 248 to 255 > maximum 247 '11110111' for UTF-8
+            return False
+        # if num in (192, 193, 224, 225):
+        if num in (192, 193):
+            # Leading bytes for overlong encodings -> '11000000' and '11000001'
+            return False
+        if num == 128 and previous_byte in (224, 240):
+            # Overlong encoding -> '11100000 10000000' or '11110000 10000000'
+            return False
+        if num < 128:
+            # Continuation byte '10xxxxxx' expected but not found '0xxxxxxx'
+            if continuation_bytes:
+                return False
+            # Valid 8-bit/byte character expected/found. Move on to next byte
+        elif num < 192:
+            # Continuation byte '10xxxxxx' provided but not expected
+            if not continuation_bytes:
+                return False
+            # Continuation byte found, update remainder
+            continuation_bytes -= 1
+        elif num >= 194:
+            # Continuation byte '10xxxxxx' expected but not found '11xxxxxx'
+            if continuation_bytes:
+                return False
+            # Leading byte found. Get length/number of continuation bytes
+            continuation_bytes = len(bin(num)[2:].split("0")[0]) - 1
+        # Track current byte for overlong encodings checks
+        previous_byte = num
 
-                return True
-
-    return False
+    # Return True if sequence ended as expected, else False
+    return True if not continuation_bytes else False
