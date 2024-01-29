@@ -35,14 +35,19 @@ def create_board(num):
 
 
 def check_diagonal_threat(board, row, col):
-    pass
+    """
+    Checks if a queen is a diagonal threat to another queen
+    """
+    for i in range(row):
+        if abs(row - i) == abs(col - board[row][i]):
+            return True
+    return False
 
 
 def check_vertical_threat(board, row, col):
     """
     Checks if a queen is a vertical threat to another queen
     """
-    # Check each row of the chessboard for the given column
 
     for row_index in range(len(board)):
         if board[row_index][col]:
@@ -73,18 +78,26 @@ def backtrack():
 
 def place_queen(N):
     chess_board = create_board(N)
-    chess_board[3][0] = 1
+    chess_board[0][0] = 1
+    # chess_board[3][0] = 1
+    # chess_board[2][2] = 1
+    # chess_board[1][3] = 1
 
     for board in chess_board:  # output test
         print(board)
     # print(len(chess_board))
 
-    # is_threat = check_diagonal_threat(board, row, col)
-    # is_threat = check_vertical_threat(chess_board, 3, 3)
-    is_threat = check_horizontal_threat(chess_board, 3, 3)
+    # Check if the queen is being placed in a threatened position
+    is_threat = check_diagonal_threat(chess_board, 2, 1)
+    if not is_threat:
+        print("I'm here 1")
+        is_threat = check_vertical_threat(chess_board, 2, 1)
+    if not is_threat:
+        print("I'm here 2")
+        is_threat = check_horizontal_threat(chess_board, 2, 1)
+
     return is_threat
 
 
-# is_threat = True
 val = place_queen(int(sys.argv[1]))
 print(val)
