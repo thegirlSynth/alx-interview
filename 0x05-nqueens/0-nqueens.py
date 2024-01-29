@@ -1,90 +1,113 @@
 #!/usr/bin/python3
+"""N queens solution finder module.
 """
-Solves the N-Queens Problem as described in the README.md
-"""
-
-
 import sys
 
 
-if len(sys.argv) != 2:
-    print("Usage: nQueens N")
-    exit(1)
+solutions = []
+"""The list of possible solutions to the N queens problem.
+"""
+n = 0
+"""The size of the chessboard.
+"""
+pos = None
+"""The list of possible positions on the chessboard.
+"""
 
-try:
-    if int(sys.argv[1]) < 4:
+
+def get_input():
+    """Retrieves and validates this program's argument.
+
+    Returns:
+        int: The size of the chessboard.
+    """
+    global n
+    n = 0
+    if len(sys.argv) != 2:
+        print("Usage: nqueens N")
+        sys.exit(1)
+    try:
+        n = int(sys.argv[1])
+    except Exception:
+        print("N must be a number")
+        sys.exit(1)
+    if n < 4:
         print("N must be at least 4")
-        exit(1)
-except ValueError:
-    print("N must be a number")
-    exit(1)
+        sys.exit(1)
+    return n
 
 
-def create_board(num):
+def is_attacking(pos0, pos1):
+    """Checks if the positions of two queens are in an attacking mode.
+
+    Args:
+        pos0 (list or tuple): The first queen's position.
+        pos1 (list or tuple): The second queen's position.
+
+    Returns:
+        bool: True if the queens are in an attacking position else False.
     """
-    Creates the required chessboard according to the specified size
+    if (pos0[0] == pos1[0]) or (pos0[1] == pos1[1]):
+        return True
+    return abs(pos0[0] - pos1[0]) == abs(pos0[1] - pos1[1])
+
+
+def group_exists(group):
+    """Checks if a group exists in the list of solutions.
+
+    Args:
+        group (list of integers): A group of possible positions.
+
+    Returns:
+        bool: True if it exists, otherwise False.
     """
-    chessboard = []
-    for _ in range(num):
-        row = []
-        for _ in range(num):
-            row.append(0)
-        chessboard.append(row)
-
-    return chessboard
-
-
-def check_diagonal_threat(board, row, col):
-    pass
-
-
-def check_vertical_threat(board, row, col):
-    """
-    Checks if a queen is a vertical threat to another queen
-    """
-    # Check each row of the chessboard for the given column
-
-    for row_index in range(len(board)):
-        if board[row_index][col]:
-            if row_index != row:
-                return True
+    global solutions
+    for stn in solutions:
+        i = 0
+        for stn_pos in stn:
+            for grp_pos in group:
+                if stn_pos[0] == grp_pos[0] and stn_pos[1] == grp_pos[1]:
+                    i += 1
+        if i == n:
+            return True
     return False
 
 
-def check_horizontal_threat(board, row, col):
+def build_solution(row, group):
+    """Builds a solution for the n queens problem.
+
+    Args:
+        row (int): The current row in the chessboard.
+        group (list of lists of integers): The group of valid positions.
     """
-    Checks if a queen is a horizontal threat to another queen
+    global solutions
+    global n
+    if row == n:
+        tmp0 = group.copy()
+        if not group_exists(tmp0):
+            solutions.append(tmp0)
+    else:
+        for col in range(n):
+            a = (row * n) + col
+            matches = zip(list([pos[a]]) * len(group), group)
+            used_positions = map(lambda x: is_attacking(x[0], x[1]), matches)
+            group.append(pos[a].copy())
+            if not any(used_positions):
+                build_solution(row + 1, group)
+            group.pop(len(group) - 1)
+
+
+def get_solutions():
+    """Gets the solutions for the given chessboard size.
     """
-
-    chess_row = board[row]
-    index = 0
-
-    for index in range(len(chess_row)):
-        if chess_row[index]:
-            if chess_row[index] != col:
-                return True
-        index += 1
-    return False
+    global pos, n
+    pos = list(map(lambda x: [x // n, x % n], range(n ** 2)))
+    a = 0
+    group = []
+    build_solution(a, group)
 
 
-def backtrack():
-    pass
-
-
-def place_queen(N):
-    chess_board = create_board(N)
-    chess_board[3][0] = 1
-
-    for board in chess_board:  # output test
-        print(board)
-    # print(len(chess_board))
-
-    # is_threat = check_diagonal_threat(board, row, col)
-    # is_threat = check_vertical_threat(chess_board, 3, 3)
-    is_threat = check_horizontal_threat(chess_board, 3, 3)
-    return is_threat
-
-
-# is_threat = True
-val = place_queen(int(sys.argv[1]))
-print(val)
+n = get_input()
+get_solutions()
+for solution in solutions:
+    print(solution)
